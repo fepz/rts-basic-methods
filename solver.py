@@ -1,3 +1,4 @@
+from __future__ import print_function
 import math
 
 rts_list = { 'a': [(1,3,3), (1,4,4), (1,6,6)],
@@ -27,15 +28,15 @@ except ImportError:
         return a
 
 def lcm(rts):
-    """ Calcula el hiperperiodo de rts """
+    """ rts hiperperiod (l.c.m) """
     periods = []
     for task in rts:
         periods.append(task[1])
     return reduce(lambda x, y: (x * y) // gcd(x, y), periods, 1)
 
 
-def calc_fu(rts):
-    """ Calcula el FU del rts """
+def uf(rts):
+    """ tasks utilization factor """
     fu = 0
     for task in rts:
         fu = fu + (float(task[0]) / float(task[1]))
@@ -43,7 +44,7 @@ def calc_fu(rts):
 
 
 def round_robin(rts):
-    """ Calcula planificabilidad del rts para Round Robin """
+    """ Evaluate schedulability of the round robin algorithm """
     min_d = float("inf")
     sum_c = 0
     for task in rts:
@@ -53,19 +54,19 @@ def round_robin(rts):
     return [min_d >= sum_c, min_d, sum_c]
 
 
-def cota_liu(rts):
-    """ Calcula planificabilidad por la cota de Liu """
-    fu = calc_fu(rts)
-    cota = len(rts) * ( pow(2, 1.0 / float(len(rts))) - 1)
-    return [fu, cota, fu <= cota]
+def liu_bound(rts):
+    """ Evaluate rts schedulability using the Liu & Layland bound """
+    u = uf(rts)
+    bound = len(rts) * ( pow(2, 1.0 / float(len(rts))) - 1)
+    return [u, bound, u <= bound]
 
     
-def cota_bini(rts):
-    """ Calcula planificabilidad por la cota de Bini """
-    cota = 1
+def bini_bound(rts):
+    """ Evaluate rts schedulability using the hyperbolic bound """
+    bound = 1
     for task in rts:
-        cota *= ( (float(task[0]) / float(task[1]) ) + 1 )
-    return [cota, cota <= 2]
+        bound *= ( (float(task[0]) / float(task[1]) ) + 1 )
+    return [bound, bound <= 2]
     
     
 def joseph_wcrt(rts):
@@ -88,7 +89,8 @@ def joseph_wcrt(rts):
             if r > d:
                 schedulable = False
         wcrt[i] = r
-        if not schedulable: break
+        if not schedulable: 
+            break
     return [schedulable, wcrt]
     
 
@@ -111,7 +113,7 @@ def first_free_slot(rts):
     
     
 def calculate_k(rts):
-    """ Calcula el K de cada tarea (máximo retraso en el instante critico) """
+    """ Calcula el K de cada tarea (maximo retraso en el instante critico) """
     ks = [0] * len(rts)
     ks[0] = rts[0][1] - rts[0][0]
         
@@ -155,11 +157,11 @@ def main():
         rts = rts_list[k]
         print("rts", k)
         print("h:    ", lcm(rts))
-        print("fu:   ", calc_fu(rts))
-        print("liu:  ", cota_liu(rts))    
-        print("bini: ", cota_bini(rts))
+        print("uf:   ", uf(rts))
+        print("liu:  ", liu_bound(rts))    
+        print("bini: ", bini_bound(rts))
         print("wcrt: ", joseph_wcrt(rts))
-        print("edf:  ", (calc_fu(rts) <= 1))
+        print("edf:  ", (uf(rts) <= 1))
         print("free: ", first_free_slot(rts))
         print("k:    ", calculate_k(rts))
         print("rr:   ", round_robin(rts))
