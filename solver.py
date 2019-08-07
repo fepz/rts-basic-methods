@@ -1,5 +1,6 @@
 from __future__ import print_function
 import math
+import argparse
 
 rts_list = { 'a': [(1,3,3), (1,4,4), (1,6,6)],
              'b': [(2,4,4), (1,5,5), (1,6,6)],
@@ -152,8 +153,22 @@ def calculate_servers(rts):
     return cds_list
 
 
+def getargs():
+    """ Command line arguments """
+    parser = argparse.ArgumentParser(description="Basic methods for RTS schedulability and wcrt analysis.");
+    parser.add_argument("rts", nargs="*", help="RTS to evaluate");
+    return parser.parse_args();
+
+
 def main():
-    for k in sorted(rts_list):
+    args = getargs();
+    
+    if not args.rts:
+        l = sorted(rts_list)
+    else:
+        l = args.rts
+    
+    for k in l:
         rts = rts_list[k]
         print("rts", k)
         print("h:    ", lcm(rts))
