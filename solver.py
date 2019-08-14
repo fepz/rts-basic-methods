@@ -67,9 +67,9 @@ def joseph_wcrt(rts):
     """ Calcula el WCRT de cada tarea del str y evalua la planificabilidad """
     wcrt = [0] * len(rts)
     schedulable = True
-    wcrt[0] = rts[0][0]
+    wcrt[0] = rts[0][0]  # task 0 wcet
     for i, task in enumerate(rts[1:], 1):
-        r = 1
+        r = 0
         c, t, d = task[0], task[1], task[2]        
         while schedulable:
             w = 0
