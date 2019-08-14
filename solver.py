@@ -147,7 +147,7 @@ def calculate_servers(rts):
     cds_list = []
     
     for tds in sorted(priorities):
-        cds = [(k / math.ceil(float(task[1]) / float(tds))) for k, task in zip(ks, rts)]
+        cds = [(float(k) / float(math.ceil(float(task[1]) / float(tds)))) for k, task in zip(ks, rts)]
         cds_list.append((tds, min(cds)))
         
     return cds_list
