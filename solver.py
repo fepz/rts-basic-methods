@@ -51,7 +51,7 @@ def round_robin(rts):
 def liu_bound(rts):
     """ Evaluate rts schedulability using the Liu & Layland bound """
     u = uf(rts)
-    bound = len(rts) * ( pow(2, 1.0 / float(len(rts))) - 1)
+    bound = len(rts) * (pow(2, 1.0 / float(len(rts))) - 1)
     return [u, bound, u <= bound]
 
     
@@ -59,8 +59,8 @@ def bini_bound(rts):
     """ Evaluate rts schedulability using the hyperbolic bound """
     bound = 1
     for task in rts:
-        bound *= ( (float(task[0]) / float(task[1]) ) + 1 )
-    return [bound, bound <= 2]
+        bound *= ((float(task[0]) / float(task[1])) + 1 )
+    return [bound, bound <= 2.0]
     
     
 def joseph_wcrt(rts):
