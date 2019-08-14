@@ -33,7 +33,7 @@ def lcm(rts):
     periods = []
     for task in rts:
         periods.append(task[1])
-    return reduce(lambda x, y: (x * y) // gcd(x, y), periods, 1)
+    return reduce(lambda x, y: (x * y) // math.gcd(x, y), periods, 1)
 
 
 def uf(rts):
