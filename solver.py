@@ -1,4 +1,5 @@
 from __future__ import print_function
+from functools import reduce
 import math
 import argparse
 
@@ -19,14 +20,6 @@ rts_list = {'a': [(1,3,3), (1,4,4), (1,6,6)],
             'o': [(2,5,5), (1,8,8), (2,12,12), (2,13,13)],
             'p': [(1,4,4), (2,7,7), (2,11,11), (1,15,15,)]}
               
-from functools import reduce
-try:
-    from fractions import gcd
-except ImportError:
-    def gcd(a, b):
-        while b:
-            a, b = b, a % b
-        return a
 
 def lcm(rts):
     """ rts hiperperiod (l.c.m) """
