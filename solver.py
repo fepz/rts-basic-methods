@@ -86,7 +86,30 @@ def joseph_wcrt(rts):
         if not schedulable: 
             break
     return [schedulable, wcrt]
-    
+
+
+def rta_wcrt(rts):
+    """ Calcula el WCRT de cada tarea del str y evalua la planificabilidad """
+    wcrt = [0] * len(rts)
+    schedulable = True
+    wcrt[0] = rts[0][0]  # task 0 wcet
+    for i, task in enumerate(rts[1:], 1):
+        c, t, d = task[0], task[1], task[2]
+        r = wcrt[i-1] + c
+        while schedulable:
+            w = 0
+            for taskp in rts[:i]:
+                cp, tp = taskp[0], taskp[1]
+                w += math.ceil(float(r) / float(tp)) * cp
+            w = c + w
+            if r == w:
+                break
+            r = w
+            if r > d:
+                schedulable = False
+        wcrt[i] = r
+        if not schedulable:
+            break
 
 def first_free_slot(rts):
     """ Calcula primer instante que contiene un slot libre por subsistema """
