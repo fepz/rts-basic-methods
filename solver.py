@@ -199,7 +199,6 @@ def main():
         print("uf:   ", uf(rts))
         print("liu:  ", liu_bound(rts))    
         print("bini: ", bini_bound(rts))
-        #print("wcrt: ", joseph_wcrt(rts))
         print("wcrt:  ", wcrt(rts))
         print("edf:  ", (uf(rts) <= 1))
         print("free: ", first_free_slot(rts))
