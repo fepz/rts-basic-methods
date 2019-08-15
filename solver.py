@@ -110,6 +110,14 @@ def rta_wcrt(rts):
         wcrt[i] = r
         if not schedulable:
             break
+    return [schedulable, wcrt]
+
+
+def wcrt(rts):
+    """ Calcula wcrt y planificabilidad con todos los metodos implementados """
+    results = {'joseph': joseph_wcrt(rts), 'rta': rta_wcrt(rts)}
+    return results
+
 
 def first_free_slot(rts):
     """ Calcula primer instante que contiene un slot libre por subsistema """
@@ -191,7 +199,8 @@ def main():
         print("uf:   ", uf(rts))
         print("liu:  ", liu_bound(rts))    
         print("bini: ", bini_bound(rts))
-        print("wcrt: ", joseph_wcrt(rts))
+        #print("wcrt: ", joseph_wcrt(rts))
+        print("wcrt:  ", wcrt(rts))
         print("edf:  ", (uf(rts) <= 1))
         print("free: ", first_free_slot(rts))
         print("k:    ", calculate_k(rts))
