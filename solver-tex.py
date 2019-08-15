@@ -47,9 +47,19 @@ def liu_bound(rts):
     return [u, bound, u <= bound]
 
 
-def add_rts(rts, doc):
-    with doc.create(Section('STR')):
+def bini_bound(rts):
+    """ Evaluate rts schedulability using the hyperbolic bound """
+    bound = 1
+    for task in rts:
+        bound *= ((float(task[0]) / float(task[1])) + 1)
+    return [bound, bound <= 2.0]
+
+
+def add_rts(key, rts, doc):
+    with doc.create(Section('STR ' + str(key))):
         doc.append(Math(data=['\Gamma('+str(len(rts))+')', '=', '\{', str(rts).strip('[]'), '\}'], escape=False))
+
+        doc.append(Math(data=['H=', str(uf(rts))]))
 
         a = ['FU','=','\sum_{i=1}^'+str(len(rts))+'\\frac{C_i}{T_i}','=']
         s = []
@@ -60,6 +70,15 @@ def add_rts(rts, doc):
 
         liu = liu_bound(rts)
         a = ["n(2^{1/n}-1)".replace('n', str(len(rts))), '=', str(liu[1])]
+        doc.append(Math(data=a, escape=False))
+
+        bini = bini_bound(rts)
+        a = ["\prod_{i=1}^{n}".replace('n', str(len(rts))), "\\left(\\frac{C_i}{T_i}-1\\right)="]
+        s = []
+        for task in rts:
+            s.append("\\left(\\frac{"+str(task[0])+'}{'+str(task[1])+'}-1\\right)')
+        a.extend(['+'.join(map(str, s)), '=', str(bini[0])])
+
         doc.append(Math(data=a, escape=False))
 
 
@@ -95,8 +114,8 @@ def main():
     doc.append(NoEscape(r'\maketitle'))
 
     #fill_document(doc)
-    add_rts(rts_list['a'], doc)
-    add_rts(rts_list['b'], doc)
+    add_rts('a', rts_list['a'], doc)
+    add_rts('b', rts_list['b'], doc)
 
     doc.generate_tex()
     print(doc.dumps())
