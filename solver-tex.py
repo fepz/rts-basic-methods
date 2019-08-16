@@ -1,5 +1,6 @@
-from pylatex import Document, Section, Subsection, Command, Math
+from pylatex import Document, Section, Subsection, Command, Math, Package, Alignat
 from pylatex.utils import italic, NoEscape
+from pylatex.base_classes import Environment, Container
 from functools import reduce
 import math
 import argparse
@@ -22,6 +23,20 @@ rts_list = {'a': [(1, 3, 3), (1, 4, 4), (1, 6, 6)],
             'n': [(1, 5, 5), (3, 8, 8), (1, 12, 12), (1, 15, 15), (2, 20, 20)],
             'o': [(2, 5, 5), (1, 8, 8), (2, 12, 12), (2, 13, 13)],
             'p': [(1, 4, 4), (2, 7, 7), (2, 11, 11), (1, 15, 15,)]}
+
+
+class Dmath(Environment):
+    """A class to wrap LaTeX's breqn environment."""
+    _latex_name = "dmath*"
+    packages = [Package('breqn')]
+    escape = False
+    content_separator = "\n"
+
+
+class Aligned(Environment):
+    packages = [Package('amsmath')]
+    escape = False
+    content_separator = "\n"
 
 
 def lcm(rts):
@@ -59,36 +74,33 @@ def add_rts(key, rts, doc):
     with doc.create(Section('STR ' + str(key))):
         doc.append(Math(data=['\Gamma('+str(len(rts))+')', '=', '\{', str(rts).strip('[]'), '\}'], escape=False))
 
-        doc.append(Math(data=['H=', str(uf(rts))]))
+        doc.append(Math(data=['H=', str(lcm(rts))]))
 
-        a = ['FU','=','\sum_{i=1}^'+str(len(rts))+'\\frac{C_i}{T_i}','=']
-        s = []
-        for task in rts:
-            s.append("\\frac{"+str(task[0])+'}{'+str(task[1])+'}')
-        a.extend(['+'.join(map(str, s)), '=', str(uf(rts))])
-        doc.append(Math(data=a, escape=False))
+        with doc.create(Subsection('Factor de utilización')):
+            a = ['FU','=','\sum_{i=1}^{'+str(len(rts))+'}\\frac{C_i}{T_i}','=']
+            s = []
+            for task in rts:
+                s.append("\\frac{"+str(task[0])+'}{'+str(task[1])+'}')
+            a.extend(['+'.join(map(str, s)), '=', "{:.3f}".format(uf(rts))])
+            doc.append(Math(data=a, escape=False))
 
-        liu = liu_bound(rts)
-        a = ["n(2^{1/n}-1)".replace('n', str(len(rts))), '=', str(liu[1])]
-        doc.append(Math(data=a, escape=False))
+        with doc.create(Subsection('Cota de Liu')):
+            liu = liu_bound(rts)
+            a = ["n(2^{1/n}-1)".replace('n', str(len(rts))), '\\approx', "{:.3f}".format(liu[1])]
+            a.extend(["\geq" if liu[2] else "\\ngeq", "{:.3f}".format(uf(rts))])
+            doc.append(Math(data=a, escape=False))
 
-        bini = bini_bound(rts)
-        a = ["\prod_{i=1}^{n}".replace('n', str(len(rts))), "\\left(\\frac{C_i}{T_i}-1\\right)="]
-        s = []
-        for task in rts:
-            s.append("\\left(\\frac{"+str(task[0])+'}{'+str(task[1])+'}-1\\right)')
-        a.extend(['+'.join(map(str, s)), '=', str(bini[0])])
-
-        doc.append(Math(data=a, escape=False))
-
-
-def fill_document(doc):
-    with doc.create(Section('A section')):
-        doc.append('Some regular text and some ')
-        doc.append(italic('italic text. '))
-
-        with doc.create(Subsection('A subsection')):
-            doc.append('Also some crazy characters: $&#{}')
+        with doc.create(Subsection('Cota de Bini')):
+            with doc.create(Dmath()):
+                bini = bini_bound(rts)
+                a = ["\prod_{i=1}^{n}".replace('n', str(len(rts))), "\\left(\\frac{C_i}{T_i}-1\\right)="]
+                s = []
+                for task in rts:
+                    s.append("\\left(\\frac{"+str(task[0])+'}{'+str(task[1])+'}+1\\right)')
+                a.extend(['+'.join(map(str, s)), '\\approx', "{:.3f}".format(bini[0])])
+                a.extend(["\leq" if bini[1] else "\\nleq", "2"])
+                #doc.append(Math(data=a, inline=True, escape=False))
+                doc.append(" ".join(a))
 
 
 def getargs():
@@ -106,19 +118,26 @@ def main():
     else:
         l = args.rts
 
-    doc = Document('results', fontenc="T1", inputenc="utf8")
+    geometry_options = {"tmargin": "2cm", "lmargin": "2cm", "rmargin":"2cm", "bmargin":"2cm"}
+
+    doc = Document('results', fontenc="T1", inputenc="utf8", geometry_options=geometry_options, document_options="fleqn")
+    doc.packages.append(Package('amssymb'))
 
     doc.preamble.append(Command('title', 'Trabajo Práctico Nro. 1'))
     doc.preamble.append(Command('author', 'Francisco E. Páez (JTP)'))
     doc.preamble.append(Command('date', NoEscape(r'\today')))
     doc.append(NoEscape(r'\maketitle'))
 
-    #fill_document(doc)
-    add_rts('a', rts_list['a'], doc)
-    add_rts('b', rts_list['b'], doc)
+    if not args.rts:
+        l = sorted(rts_list)
+    else:
+        l = args.rts
+
+    for k in l:
+        rts = rts_list[k]
+        add_rts(k, rts, doc)
 
     doc.generate_tex()
-    print(doc.dumps())
 
 
 if __name__ == '__main__':
