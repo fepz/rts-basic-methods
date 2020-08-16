@@ -94,21 +94,26 @@ def joseph_wcrt(rts, doc):
             while schedulable:
                 iter += 1
                 w = 0
-                l = ["{0:}".format(c)]
-                l2 = ["t^{0:}=".format(iter)]
+
                 for taskp in rts[:i]:
                     cp, tp = taskp["c"], taskp["t"]
                     w += math.ceil(float(r) / float(tp)) * cp
                     cc += 1
-                    l.append("\\ceil*{\\frac{" + str(r) + '}{' + str(tp) + "}} }} {:0}".format(cp))
-                l2.extend(['+'.join(map(str, l))])
+
                 w = c + w
+
+                # Latex
+                l2 = ["t^{0:}={1:}+".format(iter, c)]
+                l2.extend(['+'.join(map(str,
+                                        ["\\ceil*{{\\frac{{ {0:} }} {{ {1:} }} }} {2:}".format(r, task["t"], task["c"]) for task in rts[:i]]
+                                        ))])
                 l2.append("={:0}".format(w))
                 if w <= d:
                     l2.append("=t^{0:} \Rightarrow R_{1:}=t^{2:}={3:}".format(iter - 1, i + 1, iter, r) if r == w else "\\neq t^{0:}".format(iter - 1))
                 else:
                     l2.append(">D_{0:}".format(i+1))
                 doc.append(Math(data=l2, escape=False))
+
                 if r == w:
                     break
                 r = w
