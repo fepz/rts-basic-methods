@@ -1,0 +1,26 @@
+{
+  "a": {
+    "ntask": 3, "uf": 0.8, "mint": 3, "maxt": 20
+  },
+  "b": {
+    "ntask": 4, "uf": 0.85, "mint": 3, "maxt": 30
+  },
+  "c": {
+    "ntask": 5, "uf": 0.75, "mint": 3, "maxt": 30
+  },
+  "d": {
+    "ntask": 5, "uf": 0.8, "mint": 3, "maxt": 40
+  },
+  "e": {
+    "ntask": 6, "uf": 0.9, "mint": 3, "maxt": 50
+  },
+  "f": {
+    "ntask": 6, "uf": 0.95, "mint": 3, "maxt": 60
+  },
+  "g": {
+    "ntask": 7, "uf": 0.91, "mint": 3, "maxt": 70
+  },
+  "h": {
+    "ntask": 8, "uf": 0.83, "mint": 3, "maxt": 80
+  }
+}

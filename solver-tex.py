@@ -463,7 +463,7 @@ def generate_pdf(rts_list, pdf_name, topic=0):
     doc2.preamble.append(Command('date', NoEscape(r'\the\year{}')))
     doc2.append(NoEscape(r'\maketitle'))
 
-    for k, rts in zip(string.ascii_lowercase, gen_rts(rts_list)):
+    for k, rts in zip(string.ascii_lowercase, rts_list):
         add_rts(k, rts, doc)
         add_rts_2(k, rts, doc2)
     doc.generate_pdf(filepath=pdf_name + "-soluciones")
@@ -477,17 +477,13 @@ def main():
         with args.rts_file as file:
             rts_list = json.load(file)
 
-            if not args.rts:
-                l = sorted(rts_list)
-            else:
-                l = args.rts
+            if args.rts:
+                unwanted = set(rts_list) - set(args.rts)
+                for unwanted_key in unwanted:
+                    rts_list.pop(unwanted_key, None)
 
-            for k in l:
-                rts = rts_list[k]
-                #add_rts(k, rts, doc)
-
-            #doc.generate_tex()
-            #doc.generate_pdf()
+            filepath = "{0:}".format(args.pdf_name if args.pdf_name else os.path.splitext(file.name)[0])
+            generate_pdf(rts_list, filepath)
 
     if args.params_file:
         with args.params_file as file:
@@ -495,7 +491,7 @@ def main():
             for topic in range(1, args.topics+1):
                 print("Topic {0:} ...".format(topic))
                 filepath = "{0:}-tema-{1:}".format(args.pdf_name if args.pdf_name else os.path.splitext(file.name)[0], topic)
-                generate_pdf(params_list, filepath, topic=topic)
+                generate_pdf(gen_rts(params_list), filepath, topic=topic)
             print("Done!")
 
 
