@@ -29,37 +29,37 @@ def wcrt(rts):
     return [schedulable, wcrt]
 
 
-def generate_rts(params):
-    rts_list = []
+def generate_rts(param):
+    sched_found = False
+    while not sched_found:
+        u = task_generator.gen_randfixedsum(1, param["ntask"], param["uf"])
+        t = task_generator.gen_periods_uniform(param["ntask"], 1, param["mint"], param["maxt"], round_to_int=True)
+        rts = []
+        for taskset in iter(task_generator.gen_tasksets(u, t)):
+            for task in taskset:
+                c, t = task
+                rts.append({"c": math.ceil(c), "t": int(t), "d": int(t)})
+        rts = sorted(rts, key=lambda k: k['t'])
+        if wcrt(rts)[0]:
+            return rts
 
-    for id, param in params.items():
-        ntask, uf, mint, maxt = param["ntask"], param["uf"], param["mint"], param["maxt"]
 
-        print("Generating RTS with params {0:}".format(param))
-
-        sched_found = False
-        while not sched_found:
-            u = task_generator.gen_randfixedsum(1, ntask, uf)
-            t = task_generator.gen_periods_uniform(ntask, 1, mint, maxt, round_to_int=True)
-            rts = []
-            for taskset in iter(task_generator.gen_tasksets(u, t)):
-                for task in taskset:
-                    c, t = task
-                    rts.append({"c": math.ceil(c), "t": int(t), "d": int(t)})
-            rts = sorted(rts, key=lambda k: k['t'])
-            sched_found = wcrt(rts)[0]
-            if sched_found:
-                rts_list.append(rts)
-
-    return rts_list
+def mix_range(s):
+    r = []
+    for i in s.split(','):
+        if '-' not in i:
+            r.append(int(i))
+        else:
+            l, h = map(int, i.split('-'))
+            r += range(l, h+1)
+    return r
 
 
 def getargs():
     """ Command line arguments """
     parser = argparse.ArgumentParser(description="Basic methods for RTS schedulability and WCRT analysis.")
-    parser.add_argument("--params-file", type=argparse.FileType('r'), help="JSON file with RTS params.")
-    parser.add_argument("--rts-file", type=argparse.FileType('r'), help="JSON file with RTS.")
-    parser.add_argument("--rts", nargs="*", help="RTS to evaluate")
+    parser.add_argument("file", type=argparse.FileType('r'), help="JSON file with RTS or RTS params.")
+    parser.add_argument("--rts", type=str, help="RTS to evaluate")
     parser.add_argument("--pdf-name", type=str, help="Name of the output PDF file(s). If topic is greater than one, it's appended to the filename.")
     parser.add_argument("--topics", type=int, default=1, help="Number of topics.")
     return parser.parse_args()
@@ -68,28 +68,13 @@ def getargs():
 def main():
     args = getargs()
 
-    if args.rts_file:
-        with args.rts_file as file:
-            rts_list = json.load(file)
-
-            if type(rts_list) is dict:
-                if args.rts:
-                    unwanted = set(rts_list) - set(args.rts)
-                    for unwanted_key in unwanted:
-                        rts_list.pop(unwanted_key, None)
-
-                for key, rts in rts_list.items():
-                    print(rts)
-
-            if type(rts_list) is list:
-                for rts in rts_list:
-                    print(rts)
-
-    if args.params_file:
-        with args.params_file as file:
-            params_list = json.load(file)
-            for rts in generate_rts(params_list):
+    with args.file as file:
+        rts_list = json.load(file)
+        for rts in [rts_list[i] for i in mix_range(args.rts)] if args.rts else rts_list:
+            if type(rts) is list:
                 print(rts)
+            if type(rts) is dict:
+                print(generate_rts(rts))
 
 
 if __name__ == '__main__':
