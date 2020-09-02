@@ -122,6 +122,7 @@ def wcrt(rts):
     wcrt = [0] * len(rts)
     schedulable = True
     wcrt[0] = rts[0]["c"]  # task 0 wcet
+    rts[0]["r"] = rts[0]["c"]
     for i, task in enumerate(rts[1:], 1):
         c, t, d = task["c"], task["t"], task["d"]
         r = wcrt[i - 1] + c
@@ -137,6 +138,7 @@ def wcrt(rts):
             if r > d:
                 schedulable = False
         wcrt[i] = r
+        task["r"] = r
         if not schedulable:
             break
     return [schedulable, wcrt]
@@ -413,9 +415,10 @@ def main():
                 for task in rts:
                     if "d" not in task:
                         task["d"] = task["t"]
-                rts_to_evaluate.append(rts)
             if type(rts) is dict:
-                rts_to_evaluate.append(generate_rts(rts))
+                rts = generate_rts(rts)
+            wcrt(rts)
+            rts_to_evaluate.append(rts)
         generate_pdf(rts_to_evaluate, args.actions, filepath)
 
 
