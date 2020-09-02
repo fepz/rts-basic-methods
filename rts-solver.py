@@ -66,7 +66,7 @@ def joseph_wcrt(rts, doc):
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     rts[0]["r"] = wcrt[0]
 
-    with doc.create(Subsubsection("Tarea 1")):
+    with doc.create(Subsubsection("Tarea 1", numbering=False)):
         doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
 
     for i, task in enumerate(rts[1:], 1):
@@ -74,7 +74,7 @@ def joseph_wcrt(rts, doc):
         iter = 0
         cc = 0
 
-        with doc.create(Subsubsection("Tarea {0:}".format(i+1))):
+        with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=False)):
             doc.append(Math(data=["t^0={0:}".format(r)], escape=False))
             while schedulable:
                 iter += 1
@@ -151,7 +151,7 @@ def rta_wcrt(rts, doc):
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     rts[0]["r"] = wcrt[0]
 
-    with doc.create(Subsubsection("Tarea 1")):
+    with doc.create(Subsubsection("Tarea 1", numbering=False)):
         doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
 
     for i, task in enumerate(rts[1:], 1):
@@ -159,7 +159,7 @@ def rta_wcrt(rts, doc):
         r = wcrt[i-1] + c
         cc = 0
         iter = 0
-        with doc.create(Subsubsection("Tarea {0:}".format(i+1))):
+        with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=False)):
             doc.append(Math(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(i, i+1, r)], escape=False))
             while schedulable:
                 iter += 1
@@ -203,7 +203,7 @@ def first_free_slot(rts, doc):
     free = [0] * len(rts)
     for i, task in enumerate(rts, 0):
         r = task["r"] + task["c"] if i > 0 else task["c"]
-        with doc.create(Subsubsection("Tarea {0:}".format(i+1))):
+        with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=False)):
             data = ["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(i, i + 1, r)] if i > 0 else ["t^0=C_1={{ {0:} }}".format(r)]
             doc.append(Math(data=data, escape=False))
             iter = 0
@@ -236,7 +236,7 @@ def calculate_k(rts, doc):
     ks[0] = rts[0]["d"] - rts[0]["c"]
     rts[0]["k"] = rts[0]["d"] - rts[0]["c"]
 
-    with doc.create(Subsubsection("Tarea 1")):
+    with doc.create(Subsubsection("Tarea 1", numbering=False)):
         doc.append("El máximo retraso para la tarea 1 es ")
         doc.append(Math(data=["K_1=D_1-C_1={0:}".format(rts[0]["k"])], escape=False, inline=True))
         doc.append(".")
@@ -245,7 +245,7 @@ def calculate_k(rts, doc):
         r = 1
         k = 1
         c, t, d = task["c"], task["t"], task["d"]
-        with doc.create(Subsubsection("Tarea {0:}".format(i+1))):
+        with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=False)):
             iter = 0
             doc.append("Con ")
             doc.append(Math(data=["K_{{ {0:} }} = {1:}".format(i + 1, k)], escape=False, inline=True))
@@ -311,36 +311,36 @@ def mix_range(s):
 def add_rts_to_pdf(key, rts, actions, doc):
     rts_uf = uf(rts)
 
-    with doc.create(Section('STR ' + str(key))):
+    with doc.create(Section('STR ' + str(key), numbering=False)) as section:
         if "rts" in actions:
-            doc.append(Math(data=["\Gamma("+str(len(rts))+")", '=', "\\left\\{",
+            section.append(Math(data=["\Gamma("+str(len(rts))+")", '=', "\\left\\{",
                                   ",".join("({0:}, {1:}, {2:})".format(task["c"], task["t"], task["d"]) for task in rts),
                                   "\\right\\}"], escape=False))
         if "h" in actions:
-            doc.append(Math(data=['H=', str(lcm(rts))]))
+            section.append(Math(data=['H=', str(lcm(rts))]))
 
         if "fu" in actions:
-            with doc.create(Subsection("Factor de utilización")):
+            with section.create(Subsection("Factor de utilización", numbering=False)) as subsection:
                 a = ["FU", '=', '\sum_{i=1}^{'+str(len(rts))+'}\\frac{C_i}{T_i}', '=']
                 s = []
                 for task in rts:
                     s.append("\\frac{" + str(task["c"]) + '}{' + str(task["t"]) + '}')
                 a.extend(['+'.join(map(str, s)), '=', "{:.3f}".format(uf(rts))])
-                doc.append(Math(data=a, escape=False))
-                doc.append("El FU del sistema es de {:.00%}.".format(uf(rts)))
+                subsection.append(Math(data=a, escape=False))
+                subsection.append("El FU del sistema es de {:.00%}.".format(uf(rts)))
 
         if "liu" in actions:
-            with doc.create(Subsection('Cota de Liu')):
+            with section.create(Subsection('Cota de Liu', numbering=False)) as subsection:
                 liu = liu_bound(rts)
                 a = ["n(2^{1/n}-1)".replace('n', str(len(rts))), '\\approx', "{:.3f}".format(liu[1])]
                 a.extend(["\\geq" if liu[2] else "\\ngeq", "{:.3f}".format(uf(rts))])
-                doc.append(Math(data=a, escape=False))
-                doc.append("Planificable por RM según cota de Liu." if liu[2] else "No se puede garantizar la planificabilidad en RM en base a la cota de Liu.")
-                doc.append(Math(data=["FU = {0:.3f}".format(rts_uf), " \\leq 1" if rts_uf <= 1 else " > 1"], escape=False))
-                doc.append("Planificable por EDF según cota de Liu." if rts_uf <= 1 else "No planificable por EDF en base a la cota de Liu.")
+                subsection.append(Math(data=a, escape=False))
+                subsection.append("Planificable por RM según cota de Liu." if liu[2] else "No se puede garantizar la planificabilidad en RM en base a la cota de Liu.")
+                subsection.append(Math(data=["FU = {0:.3f}".format(rts_uf), " \\leq 1" if rts_uf <= 1 else " > 1"], escape=False))
+                subsection.append("Planificable por EDF según cota de Liu." if rts_uf <= 1 else "No planificable por EDF en base a la cota de Liu.")
 
         if "bini" in actions:
-            with doc.create(Subsection('Cota de Bini')):
+            with doc.create(Subsection('Cota de Bini', numbering=False)):
                 bini = bini_bound(rts)
                 with doc.create(Dmath()):
                     a = ["\prod_{i=1}^{n}".replace('n', str(len(rts))), "\\left(\\frac{C_i}{T_i}+1\\right)="]
@@ -353,22 +353,22 @@ def add_rts_to_pdf(key, rts, actions, doc):
                 doc.append("Planificable según cota de Bini." if bini[1] else "No se puede garantizar la planificabilidad en base a la cota de Bini.")
 
         if "joseph" in actions:
-            with doc.create(Subsection('Peores casos de tiempo de respuesta con Joseph')):
+            with doc.create(Subsection('Peores casos de tiempo de respuesta con Joseph', numbering=False)):
                 sched_joseph, _ = joseph_wcrt(rts, doc)
 
         if "rta" in actions:
-            with doc.create(Subsection('Peores casos de tiempo de respuesta con RTA')):
+            with doc.create(Subsection('Peores casos de tiempo de respuesta con RTA', numbering=False)):
                 sched_rta, _ = rta_wcrt(rts, doc)
 
         if "free" in actions:
-            with doc.create(Subsection('Primera unidad libre')):
+            with doc.create(Subsection('Primera unidad libre', numbering=False)):
                 if rts_uf < 1:
                     first_free_slot(rts, doc)
                 else:
                     doc.append("Sistema {0:}.".format("saturado" if rts_uf == 1 else "sobresaturado"))
 
         if "k" in actions:
-            with doc.create(Subsection('Máximo retraso desde el instante crítico')):
+            with doc.create(Subsection('Máximo retraso desde el instante crítico', numbering=False)):
                 calculate_k(rts, doc)
 
 
