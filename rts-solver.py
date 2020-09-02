@@ -410,6 +410,9 @@ def main():
         filepath = "{0:}".format(args.pdf_name if args.pdf_name else os.path.splitext(file.name)[0])
         for rts in [rts_in_file[i] for i in mix_range(args.rts)] if args.rts else rts_in_file:
             if type(rts) is list:
+                for task in rts:
+                    if "d" not in task:
+                        task["d"] = task["t"]
                 rts_to_evaluate.append(rts)
             if type(rts) is dict:
                 rts_to_evaluate.append(generate_rts(rts))
