@@ -10,7 +10,7 @@ import argparse
 import json
 import os
 
-actions = ["rts", "fu", "h", "liu", "bini", "joseph", "rta", "k", "free"]
+actions = ["rts", "fu", "h", "liu", "bini", "joseph", "rta", "rta2", "rta3", "k", "free"]
 
 
 class Dmath(Environment):
@@ -198,6 +198,201 @@ def rta_wcrt(rts, doc):
     return [schedulable, wcrt]
 
 
+def rta2_wcrt(rts, doc):
+    wcrt = [0] * len(rts)
+    ceils = [0] * len(rts)
+    loops = [0] * len(rts)
+    for_loops = [0] * len(rts)
+    while_loops = [0] * len(rts)
+    a = [0] * len(rts)
+    schedulable = True
+
+    for idx, task in enumerate(rts):
+        a[idx] = task["c"]
+
+    t = rts[0]["c"]
+    wcrt[0] = rts[0]["c"]
+
+    with doc.create(Subsubsection("Tarea 1", numbering=False)):
+        doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+
+    for idx, task in enumerate(rts[1:], 1):
+        t_mas = t + task["c"]
+
+        cc = 0
+        loops[idx] += 1
+        for_loops[idx] += 1
+        iter = 0
+
+        with doc.create(Subsubsection("Tarea {0:}".format(idx+1), numbering=False)):
+            doc.append(Math(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(idx, idx+1, t_mas)], escape=False))
+
+            while schedulable:
+                t = t_mas
+                iter += 1
+
+                loops[idx] += 1
+                while_loops[idx] += 1
+
+                hist_t = []
+
+                for jdx, jtask in enumerate(rts[:idx]):
+                    loops[idx] += 1
+                    for_loops[idx] += 1
+
+                    tmp = math.ceil(t_mas / jtask["t"])
+                    a_tmp = tmp * jtask["c"]
+                    cc += 1
+
+                    old_t_mas = t_mas
+                    t_mas += (a_tmp - a[jdx])
+                    hist_t.append((t_mas, old_t_mas))
+                    ceils[idx] += 1
+
+                    if t_mas > task["d"]:
+                        schedulable = False
+                        break
+
+                    a[jdx] = a_tmp
+
+                # Latex
+                l2 = ["t^{0:}={1:}+".format(iter, task["c"])]
+                iter_latex_elements = []
+                for task_id, hp_task, hist_t, task_a in zip(list(range(idx)), rts[:idx], hist_t, a[:idx]):
+                    stack_rel = "\\stackrel{{ \\substack{{ A_{0:}={1:}".format(task_id+1, task_a)
+                    if hist_t[0] != hist_t[1]:
+                        stack_rel += "\\\\[5pt] t={0:}+{1:}={2:}".format(hist_t[1], hist_t[0] - hist_t[1], hist_t[0])
+                    stack_rel += "\\\\[5pt] } }"
+                    iter_latex_elements.append("{0:} {{ \\ceil*{{\\frac{{ {1:} }} {{ {2:} }} }} {3:} }}".format(stack_rel, hist_t[1], hp_task["t"], hp_task["c"]))
+                l2.extend(['+'.join(map(str, iter_latex_elements))])
+
+                l2.append("={:0}".format(t_mas))
+                if t_mas <= task["d"]:
+                    l2.append("=t^{0:} \Rightarrow R_{{ {1:} }}=t^{{ {2:} }}={3:}".format(iter - 1, idx + 1, iter, t_mas) if t == t_mas else "\\neq t^{{ {0:} }}".format( iter - 1))
+                else:
+                    l2.append(">D_{{ {0:} }}".format(idx + 1))
+                doc.append(Math(data=l2, escape=False))
+
+                if t == t_mas:
+                    break
+
+            wcrt[idx] = t
+
+            doc.append("Se necesitaron {0:} ciclos y {1:} calculos de techos.".format(iter, cc))
+
+            if not schedulable:
+                wcrt[idx] = 0
+                break
+
+    return [schedulable, wcrt, ceils, loops, for_loops, while_loops]
+
+
+def rta3_wcrt(rts, doc):
+    wcrt = [0] * len(rts)
+    ceils = [0] * len(rts)
+    loops = [0] * len(rts)
+    for_loops = [0] * len(rts)
+    while_loops = [0] * len(rts)
+    a = [0] * len(rts)
+    i = [0] * len(rts)
+    schedulable = True
+    flag = True
+
+    for idx, task in enumerate(rts):
+        a[idx] = task["c"]
+        i[idx] = task["t"]
+
+    t = rts[0]["c"]
+    wcrt[0] = rts[0]["c"]
+    rts[0]["r"] = rts[0]["c"]
+
+    with doc.create(Subsubsection("Tarea 1", numbering=False)):
+        doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+
+    for idx, task in enumerate(rts[1:], 1):
+        t_mas = t + task["c"]
+        iter = 0
+        cc = 0
+
+        loops[idx] += 1
+        for_loops[idx] += 1
+
+        with doc.create(Subsubsection("Tarea {0:}".format(idx+1), numbering=False)):
+            doc.append(Math(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(idx, idx+1, t_mas)], escape=False))
+
+            while schedulable:
+                t = t_mas
+                iter += 1
+
+                loops[idx] += 1
+                while_loops[idx] += 1
+
+                hist_t = []
+
+                for jdx, jtask in zip(range(len(rts[:idx]) - 1, -1, -1), reversed(rts[:idx])):
+                    loops[idx] += 1
+                    for_loops[idx] += 1
+
+                    if t_mas > i[jdx]:
+                        tmp = math.ceil(t_mas / jtask["t"])
+                        a_tmp = tmp * jtask["c"]
+                        cc += 1
+
+                        old_t_mas = t_mas
+                        t_mas += (a_tmp - a[jdx])
+                        hist_t.append((t_mas, old_t_mas))
+                        ceils[idx] += 1
+
+                        if t_mas > task["d"]:
+                            schedulable = False
+                            break
+
+                        a[jdx] = a_tmp
+                        i[jdx] = tmp * jtask["t"]
+                    else:
+                        hist_t.append((t_mas, t_mas))
+
+                # Latex
+                l2 = ["t^{0:}={1:}+".format(iter, task["c"])]
+                iter_latex_elements = []
+                for task_id, hp_task, hist_t, task_a, task_b in zip(list(range(idx, 0, -1)), reversed(rts[:idx]), hist_t, reversed(a[:idx]), reversed(i[:idx])):
+                    stack_rel = "\\stackrel{{ \\substack{{ A_{0:}={1:} \\\\[5pt] B_{0:}={2:}".format(task_id, task_a, task_b)
+                    if hist_t[0] != hist_t[1]:
+                        stack_rel += "\\\\[5pt] t={0:}+{1:}={2:}".format(hist_t[1], hist_t[0] - hist_t[1], hist_t[0])
+                        stack_rel += "\\\\[5pt] } }"
+                        iter_latex_elements.append(
+                            "{0:} {{ \\ceil*{{\\frac{{ {1:} }} {{ {2:} }} }} {3:} }}".format(stack_rel, hist_t[1], hp_task["t"],
+                                                                                             hp_task["c"]))
+                    else:
+                        stack_rel += "\\\\[5pt] } }"
+                        iter_latex_elements.append("{0:} {{ {1:} }}".format(stack_rel, task_a))
+
+
+                l2.extend(['+'.join(map(str, iter_latex_elements))])
+
+                l2.append("={:0}".format(t_mas))
+                if t_mas <= task["d"]:
+                    l2.append("=t^{0:} \Rightarrow R_{{ {1:} }}=t^{{ {2:} }}={3:}".format(iter - 1, idx + 1, iter,
+                                                                                          t_mas) if t == t_mas else "\\neq t^{{ {0:} }}".format(
+                        iter - 1))
+                else:
+                    l2.append(">D_{{ {0:} }}".format(idx + 1))
+                doc.append(Math(data=l2, escape=False))
+
+                if t == t_mas:
+                    break
+
+            wcrt[idx] = t
+
+            doc.append("Se necesitaron {0:} ciclos y {1:} calculos de techos.".format(iter, cc))
+
+            if not schedulable:
+                wcrt[idx] = 0
+                break
+
+    return [schedulable, wcrt, ceils, loops, for_loops, while_loops]
+
+
 def first_free_slot(rts, doc):
     """ Calcula primer instante que contiene un slot libre por subsistema """
     free = [0] * len(rts)
@@ -359,6 +554,14 @@ def add_rts_to_pdf(key, rts, actions, doc):
         if "rta" in actions:
             with doc.create(Subsection('Peores casos de tiempo de respuesta con RTA', numbering=False)):
                 sched_rta, _ = rta_wcrt(rts, doc)
+
+        if "rta2" in actions:
+            with doc.create(Subsection('Peores casos de tiempo de respuesta con RTA2', numbering=False)):
+                rta2_wcrt(rts, doc)
+
+        if "rta3" in actions:
+            with doc.create(Subsection('Peores casos de tiempo de respuesta con RTA3', numbering=False)):
+                rta3_wcrt(rts, doc)
 
         if "free" in actions:
             with doc.create(Subsection('Primera unidad libre', numbering=False)):
