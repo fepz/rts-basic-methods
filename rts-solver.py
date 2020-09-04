@@ -589,6 +589,7 @@ def generate_pdf(rts_list, actions, pdf_name, topic=0):
     # Use \ceil to enclose expressions
     doc.preamble.append(NoEscape(r'\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}'))
     doc.preamble.append(NoEscape(r'\DeclarePairedDelimiter{\floor}{\lceil}{\floor}'))
+    doc.preamble.append(NoEscape(r'\pagenumbering{gobble}'))
 
     for k, rts in zip(string.ascii_lowercase, rts_list):
         add_rts_to_pdf(k, rts, actions, doc)
