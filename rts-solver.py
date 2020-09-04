@@ -602,7 +602,7 @@ def getargs():
     parser = argparse.ArgumentParser(description="Basic methods for RTS schedulability and WCRT analysis.")
     parser.add_argument("file", type=argparse.FileType('r'), help="JSON file with RTS or RTS params.")
     parser.add_argument("--rts", type=str, help="RTS to evaluate")
-    parser.add_argument("--pdf-name", type=str, help="Name of the output PDF file(s). If topic is greater than one, it's appended to the filename.")
+    parser.add_argument("--pdf", type=str, help="Name of the output PDF file(s). If topic is greater than one, it's appended to the filename.")
     parser.add_argument("--topics", type=int, default=1, help="Number of topics.")
     parser.add_argument("--actions", type=str, nargs="*", choices=actions, default=actions)
     return parser.parse_args()
@@ -613,18 +613,19 @@ def main():
 
     with args.file as file:
         rts_in_file = json.load(file)
-        rts_to_evaluate = []
-        filepath = "{0:}".format(args.pdf_name if args.pdf_name else os.path.splitext(file.name)[0])
-        for rts in [rts_in_file[i] for i in mix_range(args.rts)] if args.rts else rts_in_file:
-            if type(rts) is list:
-                for task in rts:
-                    if "d" not in task:
-                        task["d"] = task["t"]
-            if type(rts) is dict:
-                rts = generate_rts(rts)
-            wcrt(rts)
-            rts_to_evaluate.append(rts)
-        generate_pdf(rts_to_evaluate, args.actions, filepath)
+        for topic in range(1, args.topics + 1, 1):
+            rts_to_evaluate = []
+            filepath = "{0:}-{1:}".format(args.pdf if args.pdf else os.path.splitext(file.name)[0], topic)
+            for rts in [rts_in_file[i] for i in mix_range(args.rts)] if args.rts else rts_in_file:
+                if type(rts) is list:
+                    for task in rts:
+                        if "d" not in task:
+                            task["d"] = task["t"]
+                if type(rts) is dict:
+                    rts = generate_rts(rts)
+                wcrt(rts)
+                rts_to_evaluate.append(rts)
+            generate_pdf(rts_to_evaluate, args.actions, filepath, topic=topic)
 
 
 if __name__ == '__main__':
