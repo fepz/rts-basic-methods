@@ -397,9 +397,10 @@ def first_free_slot(rts, doc):
     """ Calcula primer instante que contiene un slot libre por subsistema """
     free = [0] * len(rts)
     for i, task in enumerate(rts, 0):
-        r = task["r"] + task["c"] if i > 0 else task["c"]
+        #r = task["r"] + task["c"] if i > 0 else task["c"]
+        r = free[i-1] - 1 if i > 0 else task["c"]
         with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=False)):
-            data = ["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(i, i + 1, r)] if i > 0 else ["t^0=C_1={{ {0:} }}".format(r)]
+            data = ["t^0=F_{{ {0:} }}={1:}".format(i, r)] if i > 0 else ["t^0=C_1={{ {0:} }}".format(r)]
             doc.append(Math(data=data, escape=False))
             iter = 0
             while True:
