@@ -38,7 +38,7 @@ def bini_bound(rts):
     bound = reduce(lambda a, b: a*b, [float(task["c"]) / float(task["t"]) + 1 for task in rts])
     return [bound, bound <= 2.0]
 
-    
+
 def joseph_wcrt(rts):
     """ Calcula el WCRT de cada tarea del str y evalua la planificabilidad """
     wcrt = [0] * len(rts)
@@ -54,7 +54,7 @@ def joseph_wcrt(rts):
             if r > task["d"]:
                 schedulable = False
         wcrt[i] = r
-        if not schedulable: 
+        if not schedulable:
             break
     return [schedulable, wcrt]
 
@@ -89,7 +89,7 @@ def first_free_slot(rts):
     """ Calcula primer instante que contiene un slot libre por subsistema """
     free = [0] * len(rts)
     for i, task in enumerate(rts, 0):
-        r = 1        
+        r = 1
         while True:
             w = 0
             for taskp in rts[:i+1]:
@@ -98,16 +98,16 @@ def first_free_slot(rts):
             w = w + 1
             if r == w:
                 break
-            r = w            
+            r = w
         free[i] = r
     return free
-    
-    
+
+
 def calculate_k(rts):
     """ Calcula el K de cada tarea (maximo retraso en el instante critico) """
     ks = [0] * len(rts)
     ks[0] = rts[0]["t"] - rts[0]["c"]
-        
+
     for i, task in enumerate(rts[1:], 1):
         r = 1
         k = 1
@@ -116,7 +116,7 @@ def calculate_k(rts):
             w = 0
             for taskp in rts[:i]:
                 cp, tp = taskp["c"], taskp["t"]
-                w += math.ceil(float(r) / float(tp)) * cp                
+                w += math.ceil(float(r) / float(tp)) * cp
             w = c + w + k
             if r == w:
                 k = k + 1
