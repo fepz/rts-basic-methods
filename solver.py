@@ -135,16 +135,12 @@ def calculate_ds_bound(rts):
 
 def calculate_ds_k(rts):
     """ Calculate DS capacity for each priority level. """
-    priorities = set([task["t"] for task in rts])
-        
+    def f(k, t, tds):
+        return float(k) / (float(math.ceil(float(t) / float(tds))))
     ks = calculate_k(rts)
-    
     cds_list = []
-    
-    for tds in sorted(priorities):
-        cds = [(float(k) / float(math.ceil(float(task["t"]) / float(tds)))) for k, task in zip(ks, rts)]
-        cds_list.append((min(cds), tds))
-        
+    for tds in [task["t"] for task in rts]:
+        cds_list.append((min([f(k, task["t"], tds) for k, task in zip(ks, rts)]), tds))
     return cds_list
 
 
