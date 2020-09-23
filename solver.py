@@ -46,13 +46,12 @@ def joseph_wcrt(rts):
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     for i, task in enumerate(rts[1:], 1):
         r = 0
-        c, t, d = task["c"], task["t"], task["d"]
         while schedulable:
-            w = c + sum([math.ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            w = task["c"] + sum([math.ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
             if r == w:
                 break
             r = w
-            if r > d:
+            if r > task["d"]:
                 schedulable = False
         wcrt[i] = r
         if not schedulable: 
@@ -66,18 +65,13 @@ def rta_wcrt(rts):
     schedulable = True
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     for i, task in enumerate(rts[1:], 1):
-        c, t, d = task["c"], task["t"], task["d"]
-        r = wcrt[i-1] + c
+        r = wcrt[i-1] + task["c"]
         while schedulable:
-            w = 0
-            for taskp in rts[:i]:
-                cp, tp = taskp["c"], taskp["t"]
-                w += math.ceil(float(r) / float(tp)) * cp
-            w = c + w
+            w = task["c"] + sum([math.ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
             if r == w:
                 break
             r = w
-            if r > d:
+            if r > task["d"]:
                 schedulable = False
         wcrt[i] = r
         if not schedulable:
