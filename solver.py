@@ -211,18 +211,22 @@ def main():
             if type(rts) is dict:
                 rts = generate_rts(rts)
 
-            print("rts", rts)
-            print("h:    ", lcm(rts))
-            print("uf:   ", uf(rts))
-            print("liu:  ", liu_bound(rts))
-            print("bini: ", bini_bound(rts))
-            print("wcrt:  ", wcrt(rts))
-            print("edf:  ", (uf(rts) <= 1))
-            print("free: ", first_free_slot(rts))
-            print("k:    ", calculate_k(rts))
-            print("rr:   ", round_robin(rts))
-            print("cds:  ", calculate_servers(rts))
-    
-    
+            print("RTS: {0:}".format(rts))
+            results = [
+                ("h", lcm(rts)),
+                ("uf", uf(rts)),
+                ("liu", liu_bound(rts)),
+                ("bini", bini_bound(rts)),
+                ("wcrt", wcrt(rts)),
+                ("edf", (uf(rts) <= 1)),
+                ("free", first_free_slot(rts)),
+                ("k", calculate_k(rts)),
+                ("rr", round_robin(rts)),
+                ("ds (bound)", calculate_ds_bound(rts)),
+                ("ds (k)", calculate_ds_k(rts))
+            ]
+            print(tabulate(results, tablefmt="grid"))
+
+
 if __name__ == '__main__':
     main()
