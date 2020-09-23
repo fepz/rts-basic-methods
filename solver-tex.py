@@ -452,7 +452,7 @@ def calculate_k(rts, doc):
                 for taskp in rts[:i]:
                     cp, tp = taskp["c"], taskp["t"]
                     w += math.ceil(float(r) / float(tp)) * cp
-                    l.append("\\ceil*{\\frac{" + str(r) + '}{' + str(t) + "}} }} {:0}".format(c))
+                    l.append("\\ceil*{\\frac{" + str(r) + '}{' + str(tp) + "}} }} {:0}".format(cp))
                 w = c + w + k
                 l2.extend(['+'.join(map(str, l))])
                 l2.append("={:0}".format(w))
