@@ -35,20 +35,15 @@ def round_robin(rts):
 
 def liu_bound(rts):
     """ Evaluate schedulability using the Liu & Layland bound """
-    u = uf(rts)
     bound = len(rts) * (pow(2, 1.0 / float(len(rts))) - 1)
-    return [u, bound, u <= bound]
     return [bound, uf(rts) <= bound]
 
 
-    
 def bini_bound(rts):
     """ Evaluate schedulability using the hyperbolic bound """
-    bound = 1
-    for task in rts:
-        bound *= ((float(task["c"]) / float(task["t"])) + 1)
+    bound = reduce(lambda a, b: a*b, [float(task["c"]) / float(task["t"]) + 1 for task in rts])
     return [bound, bound <= 2.0]
-    
+
     
 def joseph_wcrt(rts):
     """ Calcula el WCRT de cada tarea del str y evalua la planificabilidad """
