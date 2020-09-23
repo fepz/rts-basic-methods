@@ -8,18 +8,12 @@ from tabulate import tabulate
 
 def lcm(rts):
     """ Real-time system hiperperiod (l.c.m) """
-    periods = []
-    for task in rts:
-        periods.append(task["t"])
-    return reduce(lambda x, y: (x * y) // math.gcd(x, y), periods, 1)
+    return reduce(lambda x, y: (x * y) // math.gcd(x, y), [task["t"] for task in rts], 1)
 
 
 def uf(rts):
     """ Real-time system utilization factor """
-    fu = 0
-    for task in rts:
-        fu = fu + (float(task["c"]) / float(task["t"]))
-    return fu
+    return sum([float(task["c"]) / float(task["t"]) for task in rts])
 
 
 def round_robin(rts):
