@@ -54,12 +54,8 @@ def joseph_wcrt(rts):
         r = 0
         c, t, d = task["c"], task["t"], task["d"]
         while schedulable:
-            w = 0
-            for taskp in rts[:i]:
-                cp, tp = taskp["c"], taskp["t"]
-                w += math.ceil(float(r) / float(tp)) * cp                
-            w = c + w
-            if r == w:            
+            w = c + sum([math.ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            if r == w:
                 break
             r = w
             if r > d:
