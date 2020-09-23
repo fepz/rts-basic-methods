@@ -144,8 +144,7 @@ def mix_range(s):
 
 
 def generate_rts(param):
-    sched_found = False
-    while not sched_found:
+    while True:
         u = task_generator.gen_randfixedsum(1, param["ntask"], param["uf"])
         t = task_generator.gen_periods_uniform(param["ntask"], 1, param["mint"], param["maxt"], round_to_int=True)
         rts = []
