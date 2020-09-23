@@ -7,7 +7,7 @@ import argparse
 
 
 def lcm(rts):
-    """ rts hiperperiod (l.c.m) """
+    """ Real-time system hiperperiod (l.c.m) """
     periods = []
     for task in rts:
         periods.append(task["t"])
@@ -15,7 +15,7 @@ def lcm(rts):
 
 
 def uf(rts):
-    """ tasks utilization factor """
+    """ Real-time system utilization factor """
     fu = 0
     for task in rts:
         fu = fu + (float(task["c"]) / float(task["t"]))
@@ -34,17 +34,17 @@ def round_robin(rts):
 
 
 def liu_bound(rts):
-    """ Evaluate rts schedulability using the Liu & Layland bound """
+    """ Evaluate schedulability using the Liu & Layland bound """
     u = uf(rts)
     bound = len(rts) * (pow(2, 1.0 / float(len(rts))) - 1)
     return [u, bound, u <= bound]
 
     
 def bini_bound(rts):
-    """ Evaluate rts schedulability using the hyperbolic bound """
+    """ Evaluate schedulability using the hyperbolic bound """
     bound = 1
     for task in rts:
-        bound *= ((float(task["c"]) / float(task["t"])) + 1 )
+        bound *= ((float(task["c"]) / float(task["t"])) + 1)
     return [bound, bound <= 2.0]
     
     
@@ -197,7 +197,7 @@ def getargs():
 
 
 def main():
-    args = getargs();
+    args = getargs()
 
     with args.file as file:
         rts_in_file = json.load(file)
