@@ -135,16 +135,21 @@ def calculate_k(rts):
                 w += math.ceil(float(r) / float(tp)) * cp                
             w = c + w + k
             if r == w:
-                r = 1
-                k = k + 1                
+                k = k + 1
             r = w
             if r > d:
                 break
         ks[i] = k - 1
     return ks
-    
 
-def calculate_servers(rts):
+
+def calculate_ds_bound(rts):
+    p = pow((uf(rts) / len(rts)) + 1, len(rts))
+    uds = (2 - p) / ((2 * p) - 1)
+    return [(uds * task["t"], task["t"]) for task in rts]
+
+
+def calculate_ds_k(rts):
     """ Calculate DS capacity for each priority level. """
     priorities = set([task["t"] for task in rts])
         
