@@ -38,6 +38,8 @@ def liu_bound(rts):
     u = uf(rts)
     bound = len(rts) * (pow(2, 1.0 / float(len(rts))) - 1)
     return [u, bound, u <= bound]
+    return [bound, uf(rts) <= bound]
+
 
     
 def bini_bound(rts):
