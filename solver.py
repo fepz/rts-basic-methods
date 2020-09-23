@@ -45,15 +45,15 @@ def joseph_wcrt(rts):
     schedulable = True
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     for i, task in enumerate(rts[1:], 1):
-        r = 0
+        t = 0
         while schedulable:
-            w = task["c"] + sum([math.ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
-            if r == w:
+            w = task["c"] + sum([math.ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            if t == w:
                 break
-            r = w
-            if r > task["d"]:
+            t = w
+            if t > task["d"]:
                 schedulable = False
-        wcrt[i] = r
+        wcrt[i] = t
         if not schedulable:
             break
     return [schedulable, wcrt]
@@ -81,25 +81,20 @@ def rta_wcrt(rts):
 
 def wcrt(rts):
     """ Calcula wcrt y planificabilidad con todos los metodos implementados """
-    results = {'joseph': joseph_wcrt(rts), 'rta': rta_wcrt(rts)}
-    return results
+    return {'joseph': joseph_wcrt(rts), 'rta': rta_wcrt(rts)}
 
 
 def first_free_slot(rts):
     """ Calcula primer instante que contiene un slot libre por subsistema """
     free = [0] * len(rts)
     for i, task in enumerate(rts, 0):
-        r = 1
+        t = 0
         while True:
-            w = 0
-            for taskp in rts[:i+1]:
-                c, t = taskp["c"], taskp["t"]
-                w += math.ceil(float(r) / float(t)) * float(c)
-            w = w + 1
-            if r == w:
+            w = 1 + sum([math.ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i+1]])
+            if t == w:
                 break
-            r = w
-        free[i] = r
+            t = w
+        free[i] = t
     return free
 
 
@@ -109,20 +104,13 @@ def calculate_k(rts):
     ks[0] = rts[0]["t"] - rts[0]["c"]
 
     for i, task in enumerate(rts[1:], 1):
-        r = 1
+        t = 0
         k = 1
-        c, t, d = task["c"], task["t"], task["d"]
-        while True:
-            w = 0
-            for taskp in rts[:i]:
-                cp, tp = taskp["c"], taskp["t"]
-                w += math.ceil(float(r) / float(tp)) * cp
-            w = c + w + k
-            if r == w:
-                k = k + 1
-            r = w
-            if r > d:
-                break
+        while t <= task["d"]:
+            w = k + task["c"] + sum([math.ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            if t == w:
+                k += 1
+            t = w
         ks[i] = k - 1
     return ks
 
