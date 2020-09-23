@@ -1,9 +1,9 @@
-from __future__ import print_function
 from functools import reduce
 from simso.generator import task_generator
 import math
 import json
 import argparse
+from tabulate import tabulate
 
 
 def lcm(rts):
