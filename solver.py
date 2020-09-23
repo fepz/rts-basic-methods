@@ -159,7 +159,7 @@ def calculate_ds_k(rts):
     
     for tds in sorted(priorities):
         cds = [(float(k) / float(math.ceil(float(task["t"]) / float(tds)))) for k, task in zip(ks, rts)]
-        cds_list.append((tds, min(cds)))
+        cds_list.append((min(cds), tds))
         
     return cds_list
 
