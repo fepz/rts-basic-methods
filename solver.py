@@ -115,6 +115,11 @@ def calculate_k(rts):
     return ks
 
 
+def calculate_ps_bound(rts):
+    ups = (2 - bini_bound(rts)[0]) / bini_bound(rts)[0]
+    return [(ups * task["t"], task["t"]) for task in rts]
+
+
 def calculate_ds_bound(rts):
     p = pow((uf(rts) / len(rts)) + 1, len(rts))
     uds = (2 - p) / ((2 * p) - 1)
@@ -189,6 +194,7 @@ def main():
                 ("free", first_free_slot(rts)),
                 ("k", calculate_k(rts)),
                 ("rr", round_robin(rts)),
+                ("ps (bound)", calculate_ps_bound(rts)),
                 ("ds (bound)", calculate_ds_bound(rts)),
                 ("ds (k)", calculate_ds_k(rts))
             ]
