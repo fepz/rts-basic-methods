@@ -437,7 +437,7 @@ def calculate_k(rts, doc):
         doc.append(".")
 
     for i, task in enumerate(rts[1:], 1):
-        r = 1
+        r = task["r"] # start from the worst-case response time instante
         k = 1
         c, t, d = task["c"], task["t"], task["d"]
         with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=True)):
