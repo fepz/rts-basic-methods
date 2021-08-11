@@ -306,6 +306,9 @@ def rta3_wcrt(rts, doc):
     wcrt[0] = rts[0]["c"]
     rts[0]["r"] = rts[0]["c"]
 
+    ab_str = " \quad ".join(["A_{:d}={:d},\,B_{:d}={:d}".format(idx, task["c"], idx, task["t"]) for idx, task in enumerate(rts, 1)])
+    doc.append(Math(data=[ab_str], escape=False))
+
     with doc.create(Subsubsection("Tarea 1", numbering=True)):
         doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
 
