@@ -603,7 +603,7 @@ def getargs():
     """ Command line arguments """
     parser = argparse.ArgumentParser(description="Basic methods for RTS schedulability and WCRT analysis.")
     parser.add_argument("file", type=argparse.FileType('r'), help="JSON file with RTS or RTS params.")
-    parser.add_argument("--rts", type=str, help="RTS to evaluate")
+    parser.add_argument("--rts", type=str, help="RTS to evaluate.")
     parser.add_argument("--pdf", type=str, help="Name of the output PDF file(s). If topic is greater than one, it's appended to the filename.")
     parser.add_argument("--topics", type=int, default=1, help="Number of topics.")
     parser.add_argument("--actions", type=str, nargs="*", choices=actions, default=actions)

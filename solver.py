@@ -116,8 +116,9 @@ def calculate_k(rts):
 
 
 def calculate_ps_bound(rts):
-    ups = (2 - bini_bound(rts)[0]) / bini_bound(rts)[0]
-    return [(ups * task["t"], task["t"]) for task in rts]
+    u = uf(rts)
+    bound = (len(rts)+1) * (pow(2, 1.0 / float(len(rts)+1)) - 1)
+    return [((bound - u) * task["t"], task["t"]) for task in rts]
 
 
 def calculate_ds_bound(rts):
