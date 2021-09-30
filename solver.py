@@ -114,6 +114,14 @@ def calculate_k(rts):
         ks[i] = k - 1
     return ks
 
+def calculate_y(rts):
+    """ Calcula los tiempos de promoción de cada tarea para Dual Priority """
+    wcrt = rta_wcrt(rts)[1]
+    y = []
+    for i, task in enumerate(zip(rts, wcrt), 1):
+        y.append(task[0]["d"] - task[1])
+    return y
+
 
 def calculate_ps_bound(rts):
     u = uf(rts)
@@ -194,6 +202,7 @@ def main():
                 ("edf", (uf(rts) <= 1)),
                 ("free", first_free_slot(rts)),
                 ("k", calculate_k(rts)),
+                ("y", calculate_y(rts)),
                 ("rr", round_robin(rts)),
                 ("ps (bound)", calculate_ps_bound(rts)),
                 ("ds (bound)", calculate_ds_bound(rts)),
