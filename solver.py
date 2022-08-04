@@ -1,6 +1,6 @@
 from functools import reduce
 from simso.generator import task_generator
-import math
+from math import ceil
 import json
 import argparse
 from tabulate import tabulate
@@ -17,7 +17,7 @@ def uf(rts):
 
 
 def round_robin(rts):
-    """ Evaluate schedulability of the round robin algorithm """
+    """ Evaluate schedulability of the round robin scheduling algorithm """
     min_d = float("inf")
     sum_c = 0
     for task in rts:
@@ -40,14 +40,14 @@ def bini_bound(rts):
 
 
 def joseph_wcrt(rts):
-    """ Calcula el WCRT de cada tarea del str y evalua la planificabilidad """
+    """ Evaluate schedulability using the Joseph & Pandya exact schedulability test """
     wcrt = [0] * len(rts)
     schedulable = True
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     for i, task in enumerate(rts[1:], 1):
         t = 0
         while schedulable:
-            w = task["c"] + sum([math.ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            w = task["c"] + sum([ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
             if t == w:
                 break
             t = w
@@ -67,7 +67,7 @@ def rta_wcrt(rts):
     for i, task in enumerate(rts[1:], 1):
         r = wcrt[i-1] + task["c"]
         while schedulable:
-            w = task["c"] + sum([math.ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            w = task["c"] + sum([ceil(float(r) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
             if r == w:
                 break
             r = w
@@ -90,7 +90,7 @@ def first_free_slot(rts):
     for i, task in enumerate(rts, 0):
         t = 0
         while True:
-            w = 1 + sum([math.ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i+1]])
+            w = 1 + sum([ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i+1]])
             if t == w:
                 break
             t = w
@@ -107,7 +107,7 @@ def calculate_k(rts):
         t = 0
         k = 1
         while t <= task["d"]:
-            w = k + task["c"] + sum([math.ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
+            w = k + task["c"] + sum([ceil(float(t) / float(taskp["t"]))*taskp["c"] for taskp in rts[:i]])
             if t == w:
                 k += 1
             t = w
@@ -138,7 +138,7 @@ def calculate_ds_bound(rts):
 def calculate_ds_k(rts):
     """ Calculate DS capacity for each priority level. """
     def f(k, t, tds):
-        return float(k) / (float(math.ceil(float(t) / float(tds))))
+        return float(k) / (float(ceil(float(t) / float(tds))))
     ks = calculate_k(rts)
     cds_list = []
     for tds in [task["t"] for task in rts]:
