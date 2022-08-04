@@ -1,6 +1,6 @@
 from functools import reduce
 from simso.generator import task_generator
-from math import ceil
+from math import ceil, gcd
 import json
 import argparse
 from tabulate import tabulate
@@ -8,7 +8,7 @@ from tabulate import tabulate
 
 def lcm(rts):
     """ Real-time system hiperperiod (l.c.m) """
-    return reduce(lambda x, y: (x * y) // math.gcd(x, y), [task["t"] for task in rts], 1)
+    return reduce(lambda x, y: (x * y) // gcd(x, y), [task["t"] for task in rts], 1)
 
 
 def uf(rts):
@@ -165,7 +165,7 @@ def generate_rts(param):
         for taskset in iter(task_generator.gen_tasksets(u, t)):
             for task in taskset:
                 c, t = task
-                rts.append({"c": math.ceil(c), "t": int(t), "d": int(t)})
+                rts.append({"c": ceil(c), "t": int(t), "d": int(t)})
         rts = sorted(rts, key=lambda k: k['t'])
         if wcrt(rts)[0]:
             return rts
