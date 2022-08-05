@@ -176,6 +176,7 @@ def getargs():
     parser = argparse.ArgumentParser(description="Basic methods for RTS schedulability and WCRT analysis.")
     parser.add_argument("file", type=argparse.FileType('r'), help="JSON file with RTS or RTS params.")
     parser.add_argument("--rts", type=str, help="RTS to evaluate")
+    parser.add_argument("--table", action="store_true", default=False)
     return parser.parse_args()
 
 
@@ -208,7 +209,12 @@ def main():
                 ("ds (bound)", calculate_ds_bound(rts)),
                 ("ds (k)", calculate_ds_k(rts))
             ]
-            print(tabulate(results, tablefmt="grid"))
+            if args.table:
+                print(tabulate(results, tablefmt="grid"))
+            else:
+                for result in results:
+                    k, v = result
+                    print("{}\t{}".format(k, v))
 
 
 if __name__ == '__main__':
