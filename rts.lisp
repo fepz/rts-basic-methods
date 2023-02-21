@@ -1,10 +1,10 @@
 (defstruct task
   wcet period deadline wcrt y k)
 
-(defvar rts 
-  (list 
-   (make-task :wcet 1 :period 3 :deadline 3) 
-   (make-task :wcet 1 :period 4 :deadline 4) 
+(defvar rts
+  (list
+   (make-task :wcet 1 :period 3 :deadline 3)
+   (make-task :wcet 1 :period 4 :deadline 4)
    (make-task :wcet 1 :period 6 :deadline 6)
    (make-task :wcet 1 :period 12 :deadline 12)))
 
@@ -31,7 +31,7 @@
   "hiperperiodo de rts"
   (apply 'lcm (mapcar (lambda (task) (period)) rts)))
 
-(defun uf (rts) 
+(defun uf (rts)
   "calcula el factor de utilización del rts"
   (apply '+ (mapcar (lambda (task) (u task)) rts)))
 
@@ -52,40 +52,26 @@
   (apply '+ (mapcar (lambda (task) (* (fceiling time (period)) (wcet))) rts)))
 
 (defun rta (rts)
-  "calcula la planificabilidad mediante RTA"  
+  "calcula la planificabilidad mediante RTA"
   (let* ((time 0))
     (loop for task in rts for i from 0 collect
           (let ((seed (+ time (wcet))))
-             
                   (loop
                     (setf time seed)
                     (setf seed (+ (wcet) (workload (subseq rts 0 i) seed)))
                     (if (> seed (deadline)) (return nil))
                     (if (eq time seed) (return time)))))))
 
-(defun rtaX (rts)
-  "calcula la planificabilidad mediante RTA"  
-  (let* ((time 0))
-    (loop for task in rts for i from 0 collect
-          (let ((seed (+ time (wcet))))
-                (setf (task-wcrt task)
-                  (loop
-                    (setf time seed)
-                    (setf seed (+ (wcet) (workload (subseq rts 0 i) seed)))
-                    (if (> seed (deadline)) (return nil))
-                    (if (eq time seed) (return time))))))))
-                 
-
 (defun promotion-times (rts)
   "calcula los tiempos de promocion de cada tarea en rts"
-  (mapcar (lambda (task) (if  (wcrt) (- (deadline) (wcrt)))) rts))
-  
+  (loop for task in rts for wcrt in (rta rts) collect
+       (- (deadline) wcrt)))
+
 (defun calculate-k (rts)
   "calcula los valores k de cada tarea en rts"
   (loop for task in rts for i from 0 collect
-        (let ((time 0) (k 0))
-             
-                   (loop 
+        (let ((time 0) (k 0) (w 0))
+                   (loop
                       (setf w (+ k (workload (subseq rts 0 (+ i 1)) time)))
                       (if (eq time w) (incf k))
                       (setf time w)
@@ -94,7 +80,7 @@
 (defun free-slots (rts)
   "busca el primer slot libre"
   (let ((time 0))
-    (loop for task in rts for i from 0 collect 
+    (loop for task in rts for i from 0 collect
           (let ((seed (+ time (wcet))))
                (loop
                     (setf time seed)
@@ -111,8 +97,3 @@
   (format t "Y:~10t~a~%" (promotion-times rts))
   (format t "K:~10t~a~%" (calculate-k rts))
   (format t "FREE:~10t~a~%" (free-slots rts)))
-
-(eval-rts rts)
-
-
-(print rts)
