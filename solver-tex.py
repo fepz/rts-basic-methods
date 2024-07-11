@@ -1,14 +1,14 @@
+import string
+import math
+import argparse
+import json
+import os
 from pylatex import Document, Section, Subsection, Subsubsection, Command, Math, Package, Alignat
 from pylatex.basic import NewPage, LineBreak, NewLine
 from pylatex.utils import italic, NoEscape
 from pylatex.base_classes import Environment, Container, Options
 from simso.generator import task_generator
 from functools import reduce
-import string
-import math
-import argparse
-import json
-import os
 
 actions = ["rts", "fu", "h", "liu", "bini", "joseph", "rta", "rta2", "rta3", "k", "free"]
 
@@ -37,10 +37,10 @@ def lcm(rts):
 
 def uf(rts):
     """ tasks utilization factor """
-    fu = 0
+    u = 0
     for task in rts:
-        fu = fu + (float(task["c"]) / float(task["t"]))
-    return fu
+        u = u + (float(task["c"]) / float(task["t"]))
+    return u
 
 
 def liu_bound(rts):
@@ -61,13 +61,14 @@ def bini_bound(rts):
 def joseph_wcrt(rts, doc):
     """ Calcula el WCRT de cada tarea del str y evalua la planificabilidad """
 
-    wcrt = [0] * len(rts)
     schedulable = True
+    wcrt = [0] * len(rts)
     wcrt[0] = rts[0]["c"]  # task 0 wcet
     rts[0]["r"] = wcrt[0]
 
     with doc.create(Subsubsection("Tarea 1", numbering=True)):
-        doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+        #doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+        doc.append(Dmath(data=["R_1=C_1={:d}".format(wcrt[0])], options="compact"))
 
     for i, task in enumerate(rts[1:], 1):
         r, c, t, d = 0, task["c"], task["t"], task["d"]
@@ -75,7 +76,8 @@ def joseph_wcrt(rts, doc):
         cc = 0
 
         with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=True)):
-            doc.append(Math(data=["t^0={0:}".format(r)], escape=False))
+            #doc.append(Math(data=["t^0={0:}".format(r)], escape=False))
+            doc.append(Dmath(data=["t^0={0:}".format(r)], options="compact"))
             while schedulable:
                 iter += 1
                 w = 0
@@ -94,10 +96,10 @@ def joseph_wcrt(rts, doc):
                                         ))])
                 l2.append("={:0}".format(w))
                 if w <= d:
-                    l2.append("=t^{0:} \Rightarrow R_{1:}=t^{2:}={3:}".format(iter - 1, i + 1, iter, r) if r == w else "\\neq t^{0:}".format(iter - 1))
+                    l2.append("=t^{0:} \Rightarrow R_{{ {1:} }}=t^{2:}={3:}".format(iter - 1, i + 1, iter, r) if r == w else "\\neq t^{0:}".format(iter - 1))
                 else:
                     l2.append(">D_{0:}".format(i+1))
-                doc.append(Math(data=l2, escape=False))
+                doc.append(Dmath(data=l2, options="compact"))
 
                 if r == w:
                     break
@@ -152,7 +154,7 @@ def rta_wcrt(rts, doc):
     rts[0]["r"] = wcrt[0]
 
     with doc.create(Subsubsection("Tarea 1", numbering=True)):
-        doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+        doc.append(Dmath(data=["R_1=C_1={:d}".format(wcrt[0])], options="compact"))
 
     for i, task in enumerate(rts[1:], 1):
         c, t, d = task["c"], task["t"], task["d"]
@@ -160,7 +162,7 @@ def rta_wcrt(rts, doc):
         cc = 0
         iter = 0
         with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=True)):
-            doc.append(Math(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(i, i+1, r)], escape=False))
+            doc.append(Dmath(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(i, i+1, r)], options="compact"))
             while schedulable:
                 iter += 1
                 w = 0
@@ -180,7 +182,7 @@ def rta_wcrt(rts, doc):
                     l2.append("=t^{0:} \Rightarrow R_{{ {1:} }}=t^{{ {2:} }}={3:}".format(iter - 1, i + 1, iter, r) if r == w else "\\neq t^{{ {0:} }}".format(iter - 1))
                 else:
                     l2.append(">D_{{ {0:} }}".format(i+1))
-                doc.append(Math(data=l2, escape=False))
+                doc.append(Dmath(data=l2, options="compact"))
 
                 if r == w:
                     break
@@ -214,7 +216,7 @@ def rta2_wcrt(rts, doc):
     wcrt[0] = rts[0]["c"]
 
     with doc.create(Subsubsection("Tarea 1", numbering=True)):
-        doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+        doc.append(Dmath(data=["R_1=C_1={:d}".format(wcrt[0])], options="compact"))
 
     for idx, task in enumerate(rts[1:], 1):
         t_mas = t + task["c"]
@@ -225,7 +227,7 @@ def rta2_wcrt(rts, doc):
         iter = 0
 
         with doc.create(Subsubsection("Tarea {0:}".format(idx+1), numbering=True)):
-            doc.append(Math(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(idx, idx+1, t_mas)], escape=False))
+            doc.append(Dmath(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(idx, idx+1, t_mas)], options="compact"))
 
             while schedulable:
                 t = t_mas
@@ -271,7 +273,7 @@ def rta2_wcrt(rts, doc):
                     l2.append("=t^{0:} \Rightarrow R_{{ {1:} }}=t^{{ {2:} }}={3:}".format(iter - 1, idx + 1, iter, t_mas) if t == t_mas else "\\neq t^{{ {0:} }}".format( iter - 1))
                 else:
                     l2.append(">D_{{ {0:} }}".format(idx + 1))
-                doc.append(Math(data=l2, escape=False))
+                doc.append(Dmath(data=l2, options="compact"))
 
                 if t == t_mas:
                     break
@@ -306,11 +308,11 @@ def rta3_wcrt(rts, doc):
     wcrt[0] = rts[0]["c"]
     rts[0]["r"] = rts[0]["c"]
 
-    ab_str = " \quad ".join(["A_{:d}={:d},\,B_{:d}={:d}".format(idx, task["c"], idx, task["t"]) for idx, task in enumerate(rts, 1)])
-    doc.append(Math(data=[ab_str], escape=False))
+    ab_str = " \quad ".join(["A_{{ {:d} }}={:d},\,B_{{ {:d} }}={:d}".format(idx, task["c"], idx, task["t"]) for idx, task in enumerate(rts, 1)])
+    doc.append(Dmath(data=[ab_str], options="compact"))
 
     with doc.create(Subsubsection("Tarea 1", numbering=True)):
-        doc.append(Math(data=["R_1=C_1={:d}".format(wcrt[0])], escape=False))
+        doc.append(Dmath(data=["R_1=C_1={:d}".format(wcrt[0])], options="compact"))
 
     for idx, task in enumerate(rts[1:], 1):
         t_mas = t + task["c"]
@@ -321,7 +323,7 @@ def rta3_wcrt(rts, doc):
         for_loops[idx] += 1
 
         with doc.create(Subsubsection("Tarea {0:}".format(idx+1), numbering=True)):
-            doc.append(Math(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(idx, idx+1, t_mas)], escape=False))
+            doc.append(Dmath(data=["t^0=R_{{ {0:} }}+C_{{ {1:} }}={2:}".format(idx, idx+1, t_mas)], options="compact"))
 
             while schedulable:
                 t = t_mas
@@ -380,7 +382,7 @@ def rta3_wcrt(rts, doc):
                         iter - 1))
                 else:
                     l2.append(">D_{{ {0:} }}".format(idx + 1))
-                doc.append(Math(data=l2, escape=False))
+                doc.append(Dmath(data=l2, options="compact"))
 
                 if t == t_mas:
                     break
@@ -403,7 +405,7 @@ def first_free_slot(rts, doc):
         r = free[i-1] - 1 if i > 0 else task["c"]
         with doc.create(Subsubsection("Tarea {0:}".format(i+1), numbering=True)):
             data = ["t^0=F_{{ {0:} }}={1:}".format(i, r)] if i > 0 else ["t^0=C_1={{ {0:} }}".format(r)]
-            doc.append(Math(data=data, escape=False))
+            doc.append(Dmath(data=data, options="compact"))
             iter = 0
             while True:
                 iter += 1
@@ -418,7 +420,7 @@ def first_free_slot(rts, doc):
                 l2.extend(['+'.join(map(str, l))])
                 l2.append("={:0}".format(w))
                 l2.append("=t^{{ {0:} }}".format(iter-1) if r == w else "\\neq t^{{ {0:} }}".format(iter-1))
-                doc.append(Math(data=l2, escape=False))
+                doc.append(Dmath(data=l2, options="compact"))
                 if r == w:
                     break
                 r = w
@@ -463,7 +465,7 @@ def calculate_k(rts, doc):
                     l2.append("=t^{{ {0:} }}".format(iter-1) if r == w else "\\neq t^{{ {0:} }}".format(iter-1))
                 else:
                     l2.append(">D_{{ {0:} }}".format(i+1))
-                doc.append(Math(data=l2, escape=False))
+                doc.append(Dmath(data=l2, options="compact"))
                 if r == w:
                     r = 1
                     k = k + 1
@@ -511,9 +513,9 @@ def add_rts_to_pdf(key, rts, actions, doc):
 
     with doc.create(Section('STR ' + str(key), numbering=True)) as section:
         if "rts" in actions:
-            section.append(Math(data=["\Gamma("+str(len(rts))+")", '=', "\\left\\{",
-                                  ",".join("({0:}, {1:}, {2:})".format(task["c"], task["t"], task["d"]) for task in rts),
-                                  "\\right\\}"], escape=False))
+            section.append(Dmath(data=["\Gamma("+str(len(rts))+")", '=', "\\left\\{",
+                              ",".join("({0:}, {1:}, {2:})".format(task["c"], task["t"], task["d"]) for task in rts),
+                              "\\right\\}"]))
         if "h" in actions:
             section.append(Math(data=['H=', str(lcm(rts))]))
 
@@ -597,6 +599,7 @@ def generate_pdf(rts_list, actions, pdf_name, topic=0):
     for k, rts in zip(string.ascii_lowercase, rts_list):
         add_rts_to_pdf(k, rts, actions, doc)
     doc.generate_pdf(filepath=pdf_name)
+    print(doc.dumps())
 
 
 def getargs():
