@@ -1,8 +1,8 @@
-from functools import reduce
-from simso.generator import task_generator
-from math import ceil, gcd
 import json
 import argparse
+from functools import reduce
+from math import ceil, gcd
+from simso.generator import task_generator
 from tabulate import tabulate
 
 
