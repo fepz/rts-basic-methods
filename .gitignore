@@ -109,5 +109,8 @@ venv.bak/
 # PDF files
 *.pdf
 
+# LaTeX files
+*.tex
+
 # Ignore the task-sets directory
 task-sets/
