@@ -108,3 +108,6 @@ venv.bak/
 
 # PDF files
 *.pdf
+
+# Ignore the task-sets directory
+task-sets/
